@@ -56,8 +56,8 @@ public class QuotationExtraction {
 		
 		if (ConfigManager.getInstance().isLocalModeEnabled()) {
 			conf.setMaster("local[*]")
-				.set("spark.executor.memory", "10g")
-				.set("spark.driver.memory", "10g");
+				.set("spark.executor.memory", "30g")
+				.set("spark.driver.memory", "30g");
 		}
 		
 		Stopwatch sw = new Stopwatch();
@@ -67,6 +67,7 @@ public class QuotationExtraction {
 			// (sentences, deduplicated sentences)
 			final JavaRDD<Sentence> allSentences = loadSentences(sc, true,
 					ConfigManager.getInstance().isMergingEnabled());
+			System.out.println("*********************: " + allSentences.count() + " are loaded ******************************");
 			
 			GroundTruthEvaluator ev = null;
 			if (intermediateEvaluation || finalEvaluation) {

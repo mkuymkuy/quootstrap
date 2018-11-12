@@ -234,13 +234,13 @@ public class GroundTruthEvaluator {
 		return transformedRDD;
 	}
 	
-	public void dumpGroundTruth() {
-		Utils.dumpRDD(sentences
-				.mapToPair(x -> new Tuple2<>(x.getKey(), new Tuple2<>(x.getQuotation(), x)))
-				.join(getPairRDD()) // (uid, idx), (quotation, speaker)
-				.mapToPair(x -> new Tuple2<>(x._2._1._1, new Tuple3<>(x._2._2, x._2._1._2, x._2._1._2.getKey()))),
-						"ground_truth_dump.txt");
-	}
+	//public void dumpGroundTruth() {
+	//	Utils.dumpRDD(sentences
+	//			.mapToPair(x -> new Tuple2<>(x.getKey(), new Tuple2<>(x.getQuotation(), x)))
+	//			.join(getPairRDD()) // (uid, idx), (quotation, speaker)
+	//				.mapToPair(x -> new Tuple2<>(x._2._1._1, new Tuple3<>(x._2._2, x._2._1._2, x._2._1._2.getKey()))),
+	//					"ground_truth_dump.txt");
+	//}
 	
 	public static class Record implements Serializable {
 		private static final long serialVersionUID = -1661736647814546848L;

@@ -17,7 +17,7 @@ import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 
-import ch.epfl.dlab.spinn3r.converter.ProtoToJson;
+//import ch.epfl.dlab.spinn3r.converter.PProtoToJsonrotoToJson;
 import scala.Tuple2;
 
 public class Utils {
@@ -84,11 +84,11 @@ public class Utils {
 		fileName = ConfigManager.getInstance().getOutputPath() + fileName;
 		FileUtils.deleteQuietly(new File(fileName));
 		rdd.saveAsTextFile(fileName);
-		try {
-			ProtoToJson.mergeHdfsFile(fileName);
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
+		//try {
+		//	;//ProtoToJson.mergeHdfsFile(fileName);
+		//} catch (IOException e) {
+		//	throw new IllegalStateException(e);
+		//}
 	}
 	
 	public static <T> void dumpRDDLocal(JavaRDD<T> rdd, String fileName) {
@@ -125,11 +125,11 @@ public class Utils {
 		}
 		FileUtils.deleteQuietly(new File(fileName));
 		rdd.saveAsTextFile(fileName);
-		try {
-			ProtoToJson.mergeHdfsFile(fileName);
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
+		//try {
+		//	;//ProtoToJson.mergeHdfsFile(fileName);
+		//} catch (IOException e) {
+		//	throw new IllegalStateException(e);
+		//}
 	}
 	
 	public static <T> List<T> findLongestSuperstring(List<T> needle, Iterable<List<T>> haystack) {
