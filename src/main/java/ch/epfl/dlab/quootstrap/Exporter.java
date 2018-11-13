@@ -89,11 +89,11 @@ public class Exporter {
 		
 		pairs // (canonical quotation, (speaker, lineage info))
 			.join(quotationMap)
-			.mapValues(x -> new Tuple3<>(x._1._1, x._1._2, x._2)) // (canonical quotation, (speaker, lineage info, full quotation))
-			.mapToPair(x -> new Tuple2<>(caseSensitive ? x._2._1() : Token.caseFold(x._2._1()), new Tuple3<>(x._1, x._2._2(), x._2._3()))) // (speaker, (canonical quotation, lineage info, full quotation))
-			.join(freebaseMapping) // (speaker, ((canonical quotation, lineage info), Freebase ID))
-			.mapToPair(x -> new Tuple2<>(x._2._1._1(), new Tuple4<>(x._2._2._2, x._2._2._1, x._2._1._2(), x._2._1._3()))) // (canonical quotation, (speaker, Freebase ID of the speaker, lineage info, full quotation))
-			.cogroup(articleMap)
+			.mapValues(x -> new Tuple3<>(x._1._1.toString(), x._1._2, x._2)) // (canonical quotation, (speaker,lineage info, full quotation))
+			//.mapToPair(x -> new Tuple2<>(caseSensitive ? x._2._1() : Token.caseFold(x._2._1()), new Tuple3<>(x._1, x._2._2(), x._2._3()))) // (speaker, (canonical quotation, lineage info, full quotation))
+			//.leftOuterJoin(freebaseMapping) // (speaker, ((canonical quotation, lineage info, full quotation), Freebase ID, Freebase Speaker))
+			//.mapToPair(x -> new Tuple2<>(x._2._1._1(), new Tuple4<>(x._1, x._2._2._1, x._2._1._2(), x._2._1._3()))) // (canonical quotation, (speaker, Freebase ID of the speaker, lineage info, full quotation))
+			.cogroup(articleMap)//(canonical quotation, (speaker, lineage info, full quotation)) join (canonical quotation, (key, full quotation, website, date))
 			.map(t -> {
 				
 				String canonicalQuotation = t._1;
@@ -102,23 +102,23 @@ public class Exporter {
 					articles.put(x._1(), new Tuple3<>(x._2(), x._3(), x._4())); // (key, (full quotation, website, date))
 				});
 				
-				Tuple4<String, String, LineageInfo, String> data = t._2._1.iterator().next();
+				Tuple3<String, LineageInfo, String> data = t._2._1.iterator().next();
 				
 				JsonObject o = new JsonObject();
-				o.addProperty("quotation", data._4());
+				o.addProperty("quotation", data._3());
 				o.addProperty("canonicalQuotation", canonicalQuotation);
 				o.addProperty("speaker", data._1());
-				o.addProperty("speakerID", data._2().substring(1, data._2().length() - 1)); // Remove < and > from the Freebase ID
-				o.addProperty("confidence", data._3().getConfidence()); // Tuple confidence
+				//o.addProperty("speakerID", data._2() != null ? data._2().substring(1, data._2().length() - 1) : ""); // Remove < and > from the Freebase ID
+				o.addProperty("confidence", data._2().getConfidence()); // Tuple confidence
 				
 				JsonArray occurrences = new JsonArray();
-				for (int i = 0; i < data._3().getPatterns().size(); i++) {
+				for (int i = 0; i < data._2().getPatterns().size(); i++) {
 					JsonObject occ = new JsonObject();
-					Tuple2<Long, Integer> key = data._3().getSentences().get(i).getKey();
+					Tuple2<Long, Integer> key = data._2().getSentences().get(i).getKey();
 					occ.addProperty("articleUID", Long.toString(key._1));
-					occ.addProperty("articleOffset", data._3().getSentences().get(i).getIndex());
-					occ.addProperty("extractedBy", data._3().getPatterns().get(i).toString(false));
-					occ.addProperty("patternConfidence", data._3().getPatterns().get(i).getConfidenceMetric());
+					occ.addProperty("articleOffset", data._2().getSentences().get(i).getIndex());
+					occ.addProperty("extractedBy", data._2().getPatterns().get(i).toString(false));
+					occ.addProperty("patternConfidence", data._2().getPatterns().get(i).getConfidenceMetric());
 					occ.addProperty("quotation", articles.get(key)._1());
 					occ.addProperty("website", articles.get(key)._2());
 					String date = articles.get(key)._3();

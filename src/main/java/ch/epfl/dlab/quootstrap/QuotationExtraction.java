@@ -67,7 +67,6 @@ public class QuotationExtraction {
 			// (sentences, deduplicated sentences)
 			final JavaRDD<Sentence> allSentences = loadSentences(sc, true,
 					ConfigManager.getInstance().isMergingEnabled());
-			System.out.println("*********************: " + allSentences.count() + " are loaded ******************************");
 			
 			GroundTruthEvaluator ev = null;
 			if (intermediateEvaluation || finalEvaluation) {
@@ -156,7 +155,7 @@ public class QuotationExtraction {
 								unmatchedIndices.add(i);
 							}
 						}
-						
+						List<Integer> leftIndices = new ArrayList<>();
 						// Try to extend short, unmatched patterns
 						for (int i : unmatchedIndices) {
 							List<Token> match = Utils.findUniqueSuperstring(speakersInArticle.get(i), validNames, caseSensitive);
@@ -188,8 +187,14 @@ public class QuotationExtraction {
 									mc.increment("extended");
 								}
 							} else {
+								leftIndices.add(i);
 								mc.increment("not_extended");
 							}
+						}
+						for(int i : leftIndices){
+							List<Token> speaker = speakersInArticle.get(i);
+							Tuple4<String, List<Token>, Sentence, Pattern> s = sentences.get(i); 	
+							out.add(new Tuple4<>(s._1(), speaker, s._3(), s._4()));
 						}
 						// (quotation, speaker, sentence, pattern)
 						return out.iterator();
